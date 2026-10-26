@@ -3,6 +3,7 @@ using UnityEngine.AI;
 
 public class AIController : MonoBehaviour
 {
+    public StateMachine StateMachine { get; private set; }
     public NavMeshAgent Agent { get; private set; }
     public AIAnimationController aiAnimationController { get; private set; }
     // public Animator Animator { get; private set; } // Not needed since we're not using animations
@@ -29,9 +30,28 @@ public class AIController : MonoBehaviour
 
 
     // Add State Machine code Here
+    void Start()
+    {
+        Agent = GetComponent<NavMeshAgent>();
+        aiAnimationController = GetComponent<AIAnimationController>();
+        // Animator = GetComponent<Animator>(); // Commented out since we're not using animations
+
+        StateMachine = new StateMachine();
+        StateMachine.AddState(new IdleState(this));
+        StateMachine.AddState(new PatrolState(this));
+        StateMachine.AddState(new ChaseState(this));
+        StateMachine.AddState(new AttackState(this)); // Add the new AttackState 
+
+        StateMachine.TransitionToState(StateType.Idle);
+    }
+
+    void Update()
+    {
+        StateMachine.Update();
+        currentState = StateMachine.GetCurrentStateType();
+    }
 
 
-    
     // 
     public bool CanSeePlayer()
     {
